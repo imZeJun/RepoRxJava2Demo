@@ -26,6 +26,15 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         mTitles.add("classicalSample()");
         mTitles.add("mapSample()");
+        mTitles.add("flatMapSample()");
+        mTitles.add("zipSample()");
+        mTitles.add("oomSample()");
+        mTitles.add("filterSample()");
+        mTitles.add("sample()");
+        mTitles.add("flowSample()");
+        mTitles.add("clickSubscription()");
+        mTitles.add("flowBufferSample()");
+        mTitles.add("flowDropSample()");
         ListView listView = (ListView) findViewById(R.id.list);
         MyAdapter myAdapter = new MyAdapter();
         listView.setAdapter(myAdapter);
@@ -60,6 +69,24 @@ public class MainActivity extends AppCompatActivity {
                         OptUtils.classicalSample();
                     } else if (position == 1) {
                         OptUtils.mapSample();
+                    } else if (position == 2) {
+                        OptUtils.flatMapSample();
+                    } else if (position == 3) {
+                        OptUtils.zipSample();
+                    } else if (position == 4) {
+                        OptUtils.oomSample();
+                    } else if (position == 5) {
+                        OptUtils.filterSample();
+                    } else if (position == 6) {
+                        OptUtils.sample();
+                    } else if (position == 7) {
+                        OptUtils.flowSample();
+                    } else if (position == 8) {
+                        OptUtils.clickSubscription();
+                    } else if (position == 9) {
+                        OptUtils.flowBufferSample();
+                    } else if (position == 10) {
+                        OptUtils.flowDropSample();
                     }
                 }
             });
