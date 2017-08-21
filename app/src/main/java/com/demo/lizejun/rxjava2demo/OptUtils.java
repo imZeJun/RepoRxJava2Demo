@@ -1,6 +1,8 @@
 package com.demo.lizejun.rxjava2demo;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import org.reactivestreams.Subscriber;
@@ -389,5 +391,10 @@ public class OptUtils {
                 Log.d(TAG, "onComplete");
             }
         });
+    }
+
+    static void startActivity(Context context, Class className) {
+        Intent intent = new Intent(context, className);
+        context.startActivity(intent);
     }
 }

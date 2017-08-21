@@ -9,6 +9,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.demo.lizejun.rxjava2demo.chapter1.BackgroundActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         mTitles.add("clickSubscription()");
         mTitles.add("flowBufferSample()");
         mTitles.add("flowDropSample()");
+        mTitles.add("backgroundActivitySample()");
         ListView listView = (ListView) findViewById(R.id.list);
         MyAdapter myAdapter = new MyAdapter();
         listView.setAdapter(myAdapter);
@@ -87,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
                         OptUtils.flowBufferSample();
                     } else if (position == 10) {
                         OptUtils.flowDropSample();
+                    } else if (position == 11) {
+                        OptUtils.startActivity(MainActivity.this, BackgroundActivity.class);
                     }
                 }
             });
