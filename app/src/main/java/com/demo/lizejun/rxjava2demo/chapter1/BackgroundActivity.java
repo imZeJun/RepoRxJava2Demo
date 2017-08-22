@@ -22,8 +22,7 @@ import io.reactivex.schedulers.Schedulers;
 public class BackgroundActivity extends AppCompatActivity {
 
     private TextView mTvDownload;
-    private int downloadIndex = 0;
-
+    private TextView mTvDownloadResult;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Override
@@ -31,15 +30,16 @@ public class BackgroundActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_background);
         mTvDownload = (TextView) findViewById(R.id.tv_download);
+        mTvDownloadResult = (TextView) findViewById(R.id.tv_download_result);
         mTvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startDownload(downloadIndex++);
+                startDownload();
             }
         });
     }
 
-    private void startDownload(final int downloadIndex) {
+    private void startDownload() {
         final Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
 
             @Override
@@ -64,20 +64,23 @@ public class BackgroundActivity extends AppCompatActivity {
 
             @Override
             public void onNext(Integer value) {
-                Log.d("BackgroundActivity", "downloadIndex=" + downloadIndex + ",onNext=" + value);
+                Log.d("BackgroundActivity", "onNext=" + value);
+                mTvDownloadResult.setText("Current Progress=" + value);
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d("BackgroundActivity", "downloadIndex=" + downloadIndex + ",onError=" + e);
+                Log.d("BackgroundActivity", "onError=" + e);
+                mTvDownloadResult.setText("Download Error");
             }
 
             @Override
             public void onComplete() {
-                Log.d("BackgroundActivity", "downloadIndex=" + downloadIndex + ",onComplete");
+                Log.d("BackgroundActivity", "onComplete");
+                mTvDownloadResult.setText("Download onComplete");
             }
         };
-        observable.subscribeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread()).subscribe(disposableObserver);
+        observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(disposableObserver);
         mCompositeDisposable.add(disposableObserver);
     }
 

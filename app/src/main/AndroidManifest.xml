@@ -16,7 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".chapter1.BackgroundActivity"></activity>
+        <activity android:name=".chapter1.BackgroundActivity" />
+        <activity android:name=".chapter2.AccumulateCallActivity"></activity>
     </application>
 
 </manifest>
