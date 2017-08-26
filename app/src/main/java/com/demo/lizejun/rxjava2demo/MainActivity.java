@@ -33,10 +33,13 @@ public class MainActivity extends AppCompatActivity {
         mTitles.add("oomSample()");
         mTitles.add("filterSample()");
         mTitles.add("sample()");
-        mTitles.add("flowSample()");
+        mTitles.add("flowErrorSample()");
         mTitles.add("clickSubscription()");
         mTitles.add("flowBufferSample()");
         mTitles.add("flowDropSample()");
+        mTitles.add("flatMapOrderSample()");
+        mTitles.add("contactMapOrderSample()");
+        mTitles.add("flowLatestSample()");
         mTitles.add("backgroundActivitySample()");
         ListView listView = (ListView) findViewById(R.id.list);
         MyAdapter myAdapter = new MyAdapter();
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     } else if (position == 6) {
                         OptUtils.sample();
                     } else if (position == 7) {
-                        OptUtils.flowSample();
+                        OptUtils.flowErrorSample();
                     } else if (position == 8) {
                         OptUtils.clickSubscription();
                     } else if (position == 9) {
@@ -91,6 +94,12 @@ public class MainActivity extends AppCompatActivity {
                     } else if (position == 10) {
                         OptUtils.flowDropSample();
                     } else if (position == 11) {
+                        OptUtils.flatMapOrderSample();
+                    } else if (position == 12) {
+                        OptUtils.contactMapOrderSample();
+                    } else if (position == 13) {
+                        OptUtils.flowLatestSample();
+                    } else if (position == 14) {
                         OptUtils.startActivity(MainActivity.this, BackgroundActivity.class);
                     }
                 }

@@ -42,6 +42,7 @@ public class OptUtils {
                 observableEmitter.onNext("2");
                 observableEmitter.onNext("3");
                 observableEmitter.onNext("4");
+                observableEmitter.onComplete();
 
             }
         }).subscribe(new Observer<String>() {
@@ -147,6 +148,68 @@ public class OptUtils {
         });
     }
 
+    static void flatMapOrderSample() {
+        Observable<Integer> sourceObservable = Observable.create(new ObservableOnSubscribe<Integer>() {
+
+            @Override
+            public void subscribe(ObservableEmitter<Integer> observableEmitter) throws Exception {
+                Log.d(TAG, "flatMapOrderSample emit 1");
+                observableEmitter.onNext(1);
+                Log.d(TAG, "flatMapOrderSample emit 2");
+                observableEmitter.onNext(2);
+                Log.d(TAG, "flatMapOrderSample emit 3");
+                observableEmitter.onNext(3);
+            }
+        });
+        Observable<String> flatObservable = sourceObservable.flatMap(new Function<Integer, ObservableSource<String>>() {
+
+            @Override
+            public ObservableSource<String> apply(Integer integer) throws Exception {
+                Log.d(TAG, "flatMapOrderSample apply=" + integer);
+                long delay = (3 - integer) * 100;
+                return Observable.fromArray("a value of " + integer, "b value of " + integer).delay(delay, TimeUnit.MILLISECONDS);
+            }
+        });
+        flatObservable.subscribe(new Consumer<String>() {
+
+            @Override
+            public void accept(String s) throws Exception {
+                Log.d(TAG, s);
+            }
+        });
+    }
+
+    static void contactMapOrderSample() {
+        Observable<Integer> sourceObservable = Observable.create(new ObservableOnSubscribe<Integer>() {
+
+            @Override
+            public void subscribe(ObservableEmitter<Integer> observableEmitter) throws Exception {
+                Log.d(TAG, "contactMapOrderSample emit 1");
+                observableEmitter.onNext(1);
+                Log.d(TAG, "contactMapOrderSample emit 1");
+                observableEmitter.onNext(2);
+                Log.d(TAG, "contactMapOrderSample emit 1");
+                observableEmitter.onNext(3);
+            }
+        });
+        Observable<String> flatObservable = sourceObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).concatMap(new Function<Integer, ObservableSource<String>>() {
+
+            @Override
+            public ObservableSource<String> apply(Integer integer) throws Exception {
+                Log.d(TAG, "contactMapOrderSample apply=" + integer);
+                long delay = (3 - integer) * 100;
+                return Observable.fromArray("a value of " + integer, "b value of " + integer).delay(delay, TimeUnit.MILLISECONDS);
+            }
+        });
+        flatObservable.subscribe(new Consumer<String>() {
+
+            @Override
+            public void accept(String s) throws Exception {
+                Log.d(TAG, s);
+            }
+        });
+    }
+
     static void zipSample() {
         Observable<Integer> sourceObservable = Observable.create(new ObservableOnSubscribe<Integer>() {
 
@@ -217,7 +280,7 @@ public class OptUtils {
                     observableEmitter.onNext(i);
                 }
             }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Integer>() {
+        }).subscribe(new Consumer<Integer>() {
 
             @Override
             public void accept(Integer integer) throws Exception {
@@ -274,29 +337,39 @@ public class OptUtils {
         });
     }
 
-    static void flowSample() {
-        Flowable<Integer> sourceFlow = Flowable.create(new FlowableOnSubscribe<Integer>() {
+    static void flowErrorSample() {
+        final Flowable<Integer> sourceFlow = Flowable.create(new FlowableOnSubscribe<Integer>() {
 
             @Override
             public void subscribe(FlowableEmitter<Integer> emitter) throws Exception {
-                emitter.onNext(1);
-                emitter.onNext(2);
-                emitter.onNext(3);
+                for (int i = 0; i < 200; i++) {
+                    Thread.sleep(500);
+                    Log.d(TAG, "requestCount=" + emitter.requested() + ",emitter=" + i);
+                    emitter.onNext(i);
+                }
+
                 emitter.onComplete();
             }
 
-        }, BackpressureStrategy.ERROR).subscribeOn(Schedulers.io());
+        }, BackpressureStrategy.ERROR).subscribeOn(Schedulers.newThread());
 
-        sourceFlow.observeOn(Schedulers.newThread()).subscribe(new Subscriber<Integer>() {
+        sourceFlow.observeOn(Schedulers.io()).subscribe(new Subscriber<Integer>() {
 
             @Override
             public void onSubscribe(Subscription subscription) {
                 Log.d(TAG, "onSubscribe");
                 sSubscription = subscription;
+                sSubscription.request(1);
             }
 
             @Override
             public void onNext(Integer integer) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                sSubscription.request(1);
                 Log.d(TAG, "onNext=" + integer);
             }
 
@@ -314,7 +387,7 @@ public class OptUtils {
 
     static void clickSubscription() {
         if (sSubscription != null) {
-            sSubscription.request(128);
+            sSubscription.request(64);
         }
     }
 
@@ -323,9 +396,9 @@ public class OptUtils {
 
             @Override
             public void subscribe(FlowableEmitter<Integer> emitter) throws Exception {
-                emitter.onNext(1);
-                emitter.onNext(2);
-                emitter.onNext(3);
+                for (int i = 0; i < 10000;i ++) {
+                    emitter.onNext(i);
+                }
                 emitter.onComplete();
             }
 
@@ -361,7 +434,7 @@ public class OptUtils {
 
             @Override
             public void subscribe(FlowableEmitter<Integer> emitter) throws Exception {
-                for (int i = 0; ;i++) {
+                for (int i = 0; i < 130; i++) {
                     emitter.onNext(i);
                 }
             }
@@ -391,6 +464,44 @@ public class OptUtils {
                 Log.d(TAG, "onComplete");
             }
         });
+    }
+
+    static void flowLatestSample() {
+        Flowable<Integer> sourceFlow = Flowable.create(new FlowableOnSubscribe<Integer>() {
+
+            @Override
+            public void subscribe(FlowableEmitter<Integer> emitter) throws Exception {
+                for (int i = 0; i < 130; i++) {
+                    emitter.onNext(i);
+                }
+            }
+
+        }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io());
+
+        sourceFlow.observeOn(Schedulers.io()).subscribe(new Subscriber<Integer>() {
+
+            @Override
+            public void onSubscribe(Subscription subscription) {
+                Log.d(TAG, "onSubscribe");
+                sSubscription = subscription;
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                Log.d(TAG, "onNext=" + integer);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                Log.d(TAG, "onError");
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete");
+            }
+        });
+
     }
 
     static void startActivity(Context context, Class className) {
